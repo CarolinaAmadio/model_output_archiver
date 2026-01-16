@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euo pipefail
+#set -euo pipefail
 
 # This script is meant to be called by a SLURM wrapper script
 # Do NOT submit with sbatch
