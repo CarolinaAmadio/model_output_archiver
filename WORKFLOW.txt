@@ -1,0 +1,26 @@
+MAIN SCRIPT
+│
+├─ Set input variables:
+│     YEAR, OPA_HOME, FREQ, INPUTDIR, TARDIR, OUTDIR
+│
+├─ Step 1: Consistency check
+│     ./AVE_FREQ____AVE_FREQ_tar_consistency.sh
+│     - Inputs: -y YEAR, -i INPUTDIR, -f FREQ, -t TARDIR
+│     - Randomly samples NetCDF files from INPUTDIR
+│     - Extracts corresponding files from TARDIR (.tar)
+│     - Uses ncdiff + Python checks to verify files are identical/coherent
+│     - Executes in parallel (MAX_JOBS)
+│
+├─ Step 2: Copy & remove tar files (FREQ 1,2,4) from $SCRATCH AVE_FREQ_tar -->  $WORK AVE_FREQ_tar
+│     ./archive_compare_remove_FREQ1_2_4.sh
+│     - Inputs: -y YEAR, -i TARDIR, -f FREQ, -o OUTDIR
+│     - Copies all .tar from TARDIR → OUTDIR (parallel rsync)
+│     - Compares MD5 of copied .tar with originals
+│     - Removes original .tar in TARDIR if identical
+│     - Logs removed files
+│
+└─ Step 3: Copy & remove tar files (FREQ 3) from $SCRATCH AVE_FREQ_tar -->  $WORK AVE_FREQ_tar
+      ./archive_compare_remove_FREQ3.sh
+      - Inputs: -y YEAR, -i TARDIR, -o OUTDIR
+      - Copies .tar files for FREQ 3 (hardcoded)
+      - Same MD5 comparison and removal logic

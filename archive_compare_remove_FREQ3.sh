@@ -1,40 +1,33 @@
 #!/bin/bash
 
-#SBATCH --job-name=ARCH10
-#SBATCH -N2
-#SBATCH --ntasks-per-node=16
-#SBATCH --time=0:30:00
-#SBATCH --mem=300gb
-#SBATCH --account=OGS_test2528
-#SBATCH --partition=g100_meteo_prod
-#SBATCH --qos=qos_meteo
+set -euo pipefail
 
-
-module load parallel
+# This script is meant to be called by a SLURM wrapper script
+# Do NOT submit with sbatch
 
 
 ###### manage YEAR AND OPADIR input from command line
-while getopts y:i: flag; do
+while getopts y:i:o: flag; do
     case "${flag}" in
         y) YEAR=${OPTARG};;
-        i) OPA_HOME=${OPTARG};;
-        *) echo "Usage: $0 -y YEAR -i OPA_HOME"; exit 1;;
+        i) INPUTDIR=${OPTARG};;
+        o) OUTDIR=${OPTARG};;
+        *) echo "Usage: $0 -y YEAR -i INPUTDIR -o OUTDIR"; exit 1;;
     esac
 done
 
-if [ -z "$YEAR" ] || [ -z "$OPA_HOME" ]; then
-    echo "Error: both -y YEAR and -i OPA_HOME are required"
+
+if [ -z "$YEAR" ] || [ -z "$INPUTDIR" ] || [ -z "$OUTDIR" ]; then
+    echo "Error: both -y YEAR and -i INPUTDIR and -o OUTDIR are required"
     exit 1
 fi
 
-INPUTDIR="/g100_scratch/userexternal/camadio0/$OPA_HOME/wrkdir/MODEL/AVE_FREQ_3_tar/$YEAR/"
-OUTDIR="/g100_work/OGS_test2528/camadio/Neccton_hindcast_ALL_SIMULATIONS_archieve/$OPA_HOME/AVE_FREQ_3_tar/$YEAR/"
 
 ###### END manage YEAR AND OPADIR input from command line
 
 compare_and_remove() {
-    local input_dir=$1
-    local output_dir=$2
+    local input_dir="$1"
+    local output_dir="$2"
     local log_file="removed_files_${YEAR}.log"
 
     export YEAR input_dir output_dir log_file
@@ -55,7 +48,7 @@ compare_and_remove() {
             if [ "$md5_input" = "$md5_output" ]; then
                 echo "$basename is identical: removing from $input_dir"
                 echo "$input_file" >> "$log_file"
-                rm "$input_file"
+                echo "rm $input_file"
             else
                 echo "$basename is different: not removed"
             fi
