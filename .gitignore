@@ -2,4 +2,6 @@ old/
 *out
 *log
 *SLURM*
+*TMPS*
+slurm*
 
