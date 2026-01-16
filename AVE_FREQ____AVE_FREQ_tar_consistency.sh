@@ -1,11 +1,6 @@
 #!/bin/bash
 
-
-set -euo pipefail
-# -e → esce al primo errore
-# -u → errore se una variabile non è definita
-# -o pipefail → intercetta errori in pipe
-
+##set -euo pipefail
 module load nco
 module load ncview
 source /g100_work/OGS23_PRACE_IT/COPERNICUS/py_env_3.9.18_new/bin/activate
