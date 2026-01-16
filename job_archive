@@ -3,7 +3,7 @@
 #SBATCH --job-name=freqX
 #SBATCH -N2
 #SBATCH --ntasks-per-node=16
-#SBATCH --time=0:10:00
+#SBATCH --time=01:10:00
 #SBATCH --mem=300gb
 #SBATCH --account=OGS_test2528
 #SBATCH --partition=g100_meteo_prod
@@ -14,27 +14,38 @@ set -euo pipefail
 # -e → esce al primo errore
 # -u → errore se una variabile non è definita
 # -o pipefail → intercetta errori in pipe
-. ../profile.inc
+
 cd "$SLURM_SUBMIT_DIR"
+. ../profile.inc
+
+
+type my_prex_or_die
 
 # inputs to modify in AVE_FREQ_1 AND 2
 YEAR=2022
 OPA_HOME=V12C/QUID_HC_03/
-FREQ=3
-
-INPUTDIR="$CINECA_SCRATCH/$OPA_HOME/wrkdir/MODEL/AVE_FREQ_${FREQ}/$YEAR/"
-TARDIR="$CINECA_SCRATCH/$OPA_HOME/wrkdir/MODEL/AVE_FREQ_${FREQ}_tar/$YEAR/"
-OUTDIR="/g100_work/OGS_test2528/V12C/QUID_HC_03/wrkdir/archive/AVE_FREQ_${FREQ}_tar/$YEAR/"
-# end inputs to modify
-
-### Check from AVE_FREQ --> AVE_FREQ_tar in MODEL
-echo "Starting checking consostency AVE_FREQ --> AVE_FREQ_tar"
-my_prex_or_die "./AVE_FREQ____AVE_FREQ_tar_consistency.sh -y $YEAR -i $INPUTDIR -f $FREQ -t $TARDIR" 
+#FREQ=1
 
 
-### starting archiviation
-##### COPY AND REMOVE TAR FILE 
-my_prex_or_die "mkdir -p $OUTDIR"
-my_prex_or_die "./archive_compare_remove_FREQ1_2_3.sh -y $YEAR -i $TARDIR -f $FREQ -o $OUTDIR"
+for FREQ in 1 2 3; do
+	INPUTDIR="$CINECA_SCRATCH/$OPA_HOME/wrkdir/MODEL/AVE_FREQ_${FREQ}/$YEAR/"
+	TARDIR="$CINECA_SCRATCH/$OPA_HOME/wrkdir/MODEL/AVE_FREQ_${FREQ}_tar/$YEAR/"
+	OUTDIR="/g100_work/OGS_test2528/V12C/QUID_HC_03/wrkdir/archive/AVE_FREQ_${FREQ}_tar/$YEAR/"
+	# end inputs to modify
+
+	### Check from AVE_FREQ --> AVE_FREQ_tar in MODEL
+	echo "Starting checking consostency AVE_FREQ --> AVE_FREQ_tar"
+	#my_prex_or_die "./AVE_FREQ____AVE_FREQ_tar_consistency.sh -y $YEAR -i $INPUTDIR -f $FREQ -t $TARDIR" 
+
+
+	### starting archiviation
+	##### COPY AND REMOVE TAR FILE 
+	my_prex_or_die "mkdir -p $OUTDIR"
+	my_prex_or_die "./archive_compare_remove_FREQ1_2_3.sh -y $YEAR -i $TARDIR -f $FREQ -o $OUTDIR"
+done
+
+mkdir slurms_AVE_FREQ
+mv slurm*out slurms_AVE_FREQ
+mv *log slurms_AVE_FREQ
 
 
